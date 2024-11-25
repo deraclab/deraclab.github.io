@@ -45,8 +45,9 @@
             </div>
         </div>
     </div>
-    <script src="https://github.com/deraclab/deraclab.github.io/blob/main/data/TotalValueAdded2002.js"></script>
-    <script>
+    <script type="module">
+        import { setup } from "https://github.com/deraclab/deraclab.github.io/blob/main/data/TotalValueAdded2002.js";
+        const data = setup();
         console.log(data);
         document.getElementById('modal-start').addEventListener('beforeshow', function() {
             console.log('Modal is about to be shown');
