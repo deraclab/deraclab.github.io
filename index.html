@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/css/uikit.min.css" />
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/js/uikit-icons.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="uk-container">
+        <h1 class="uk-heading-small">
+            Welcome to the Survey
+        </h1>
+        <p class="uk-text-lead">How Do Markets React Under Pressure? A Behavioral Study</p>
+
+        <div class="uk-card uk-card-default uk-card-body">
+            <dl>
+                <dt>Study Title:</dt>
+                <dd>How Do Markets React Under Pressure? A Behavioral Study</dd>
+                <dt>Researcher:</dt>
+                <dd>Tetsuya Saito, Ph.D.</dd>
+                <dt>Description:</dt>
+                <dd>This study explores how market participants react to increasing tensions in asset markets. Participants will respond to a short hypothetical market scenario and provide their decisions about asset pricing.</dd>
+                <dt>Duration:</dt>
+                <dd>1-2 minutes</dd>
+                <dt>Compensation:</dt>
+                <dd>[Specify compensation amount] (following Prolific's fair pay guidelines)</dd>
+                <dt>Eligibility:</dt>
+                <dd>Adults aged 18+ with a basic understanding of market behavior</dd>
+                <dt>Type of Questions:</dt>
+                <dd>Hypothetical market scenarios and quick decision-making questions</dd>
+                <dt>Purpose of the Study:</dt>
+                <dd>This research aims to understand behavioral trends in market dynamics during periods of stress and uncertainty. Your insights will help validate a theoretical proposition about asset pricing under tension.</dd>
+            </dl>
+        </div>
+        
+        <div uk-alert>
+            <div class="uk-h4 uk-text-bold">Important Notes for Participants:</div>
+            <div>
+                Your responses will remain anonymous and will only be used for academic purposes.
+                Please read the scenario carefully and provide honest answers.
+                At the end of the survey, you will receive a completion code to submit on Prolific.
+                Thank you for contributing to this brief but important research! Your input is highly valued.
+            </div>
+        </div>
+
+        <a class="uk-button uk-button-primary" href="#modal-start" uk-toggle >Start Survey</a>
+    </div>
+
+    <div class="uk-modal" id="modal-start" uk-modal>
+        <div class="uk-modal-dialog">
+            <button class="uk-modal-close-full uk-close-large" type="button" uk-close></button>
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Full Page</h2>
+            </div>
+            <div class="uk-modal-body" uk-overflow-auto>
+                <h1 class="uk-heading-small">
+                    Welcome to the Survey
+                </h1>
+                <p class="uk-text-lead">How Do Markets React Under Pressure? A Behavioral Study</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('modal-start').addEventListener('beforeshow', function() {
+            console.log('Modal is about to be shown');
+        });
+    </script>
+</body>
+</html>
