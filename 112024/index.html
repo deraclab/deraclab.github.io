@@ -44,14 +44,76 @@
                         <div class="uk-h5 uk-text-bold uk-margin-remove">
                             Where is your current location?
                         </div>
+                        <select class="uk-select" id="_countries" onchange="selectCurrency(this)"></select>
+                    </div>
+                </div>
+                <div class="uk-hidden uk-alert-primary" uk-alert>
+                    If you have <span class="uk-text-bold" id="_question"></span> prepared for the next week payment, what would you do?
+                    <ol class="uk-list">
+                        <li>
+                            <label>
+                                <input type="radio" name="_answer" value="1" />
+                                Keep the money in your <b>bank account</b>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio" name="_answer" value="2" />
+                                Get a <b>lottery</b> that gives you <span class="uk-text-bold" id="_lottery"></span> by 10% of chance!
+                            </label>
+                        </li>
+                    </ol>
+                    <hr />
+                    <p>
+                        <label for="_agree" class="uk-text-small">
+                            <input type="checkbox" id="_agree" />
+                            I agree to participate in the survey
+                        </label>
+                    </p>
+                    <button class="uk-button uk-button-primary" onclick="submitAnswer(this)">Submit</button>
                 </div>
             </div>
         </div>
     </div>
-    <script src="https://github.com/deraclab/deraclab.github.io/blob/main/data/TotalValueAdded2002.js">
-        const data = setup();
-        window
+    <script type="javascript" src="https://github.com/deraclab/deraclab.github.io/blob/main/data/TotalValueAdded2002.js"></script>
+    <script>
+        localStorage.clear();
+        const dataSetup = new dataSetupLocal();
+        const data = dataSetup.getData();
         console.log('data', data);
+        dataSetup.datalist('_countries');
+        const selectCurrency = (element, endowment = 1000) => {
+            const currency = element.options[element.selectedIndex].dataset.currency;
+            const base = dataSetup.normalize(element.value)*endowment;
+            const len = parseInt(base).toString().length;
+            const denom = Math.pow(10,len-1);
+            const amount = Math.round(base/denom)*denom;
+            const formatter = new Intl.NumberFormat('en-US');
+            const _uestionElement = document.getElementById('_question');
+            _uestionElement.innerHTML = formatter.format(amount) + ' ' + dataSetup.pluralize(currency);
+            _uestionElement.parentElement.classList.remove('uk-hidden');
+            document.getElementById('_lottery').innerHTML = formatter.format(amount*2) + ' ' + dataSetup.pluralize(currency);
+        }
+        const submitAnswer = (element) => {
+            const countries = document.getElementById('_countries');
+            const id = countries.value;
+            const country = countries.options[countries.selectedIndex].text;
+            const currency = countries.options[countries.selectedIndex].dataset.currency;
+            const answer = document.querySelector('input[name="_answer"]:checked');
+            if(id !== "" && answer !== null){
+                localStorage.setItem('country', id);
+                localStorage.setItem('risk_prefs', answer.value);
+            }else{
+                UIkit.modal.alert('Please select a country and answer the question.');
+                return;
+            }
+            const agree = document.getElementById('_agree');
+            if(!agree.checked){
+                UIkit.modal.alert('Please agree to participate in the survey.');
+                return;
+            }
+            return location.replace('./instructions.html');
+        }
         document.getElementById('modal-start').addEventListener('beforeshow', function() {
             console.log('Modal is about to be shown');
         });
