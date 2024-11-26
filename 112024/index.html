@@ -35,19 +35,23 @@
         <div class="uk-modal-dialog">
             <button class="uk-modal-close-full uk-close-large" type="button" uk-close></button>
             <div class="uk-modal-header">
-                <h2 class="uk-modal-title">Full Page</h2>
+                <div class="uk-h3 uk-text-bold uk-margin-remove">Welcome to the Survey</div>
             </div>
             <div class="uk-modal-body" uk-overflow-auto>
-                <h1 class="uk-heading-small">
-                    Welcome to the Survey
-                </h1>
-                <p class="uk-text-lead">How Do Markets React Under Pressure? A Behavioral Study</p>
+                <div class="uk-h4 uk-text-bold">Before starting the survey, tell me about yourself</div>
+                <div uk-alert>
+                    <div>
+                        <div class="uk-h5 uk-text-bold uk-margin-remove">
+                            Where is your current location?
+                        </div>
+                </div>
             </div>
         </div>
     </div>
     <script src="https://github.com/deraclab/deraclab.github.io/blob/main/data/TotalValueAdded2002.js">
         const data = setup();
-        console.log(data);
+        window
+        console.log('data', data);
         document.getElementById('modal-start').addEventListener('beforeshow', function() {
             console.log('Modal is about to be shown');
         });
