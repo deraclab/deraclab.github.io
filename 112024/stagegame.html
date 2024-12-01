@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/css/uikit.min.css" />
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/js/uikit-icons.min.js"></script>
+    <!-- Chart.JS -->
+    <script src="https://www.jsdelivr.com/package/npm/chart.js?path=dist"></script>
+    <title>How Do Markets React Under Pressure: A Behavioral Study: Instructions</title>
+</head>
+<body>
+<div class="uk-container uk-margin-top">
+    <h1 class="uk-heading">Trading</h1>
+    <progress id="js-progressbar" class="uk-progress" value="10" max="100"></progress>
+
+    <ul class="uk-list">
+        <li>
+            <label>
+                <input class="uk-radio" type="radio" name="decision" value="UP"> UP (buy)
+            </label>
+        </li>
+        <li>
+            <label>
+                <input class="uk-radio" type="radio" name="decision" value="DOWN"> DOWN (sell)
+            </label>
+        </li>
+        <li>
+            <label>
+                <input class="uk-radio" type="radio" name="decision" value="STAY"> STAY (hold)
+            </label>
+        </li>
+    </ul>
+
+    <button class="uk-button uk-button-primary uk-form-width-medium">Submit</button>
+
+    <script>
+    var r = localStorage.get('round');
+    if (r == null) {
+        localStorage.set('round', 1);
+    } else if(r > 5) {
+        window.location.href = 'thanks.html';
+    } else {
+        localStorage.set('round', r + 1);
+    }
+    r = localStorage.get('round');
+
+    UIkit.util.ready(function () {
+
+        var bar = document.getElementById('js-progressbar');
+
+        var animate = setInterval(function () {
+
+            bar.value += 10;
+
+            if (bar.value >= bar.max) {
+                clearInterval(animate);
+            }
+
+        }, 1000);
+
+    });
+    </script>
+</body>
+</html>
