@@ -94,8 +94,9 @@
                         'Accept': 'application/json',
                     },
                 })
+                .then(response => response.json())
                 .then(fluctuations => {
-                    this.fluctuations = fluctuations.json();
+                    this.fluctuations = fluctuations;
                     console.log('Success:', fluctuations);
                 })
                 .catch((error) => {
