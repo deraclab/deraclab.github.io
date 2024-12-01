@@ -9,6 +9,35 @@
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/js/uikit-icons.min.js"></script>
     <title>How Do Markets React Under Pressure: A Behavioral Study: Instructions</title>
+<script>
+    class dataSetupLocal{
+        constructor(t = 0){
+            this.t = t;
+            this.arn = "arn:aws:execute-api:ap-southeast-2:412381775962:0igi5rqzti/*/*/group1".split(":");
+            this.fn = this.arn[this.arn.length-1].split("/");
+            this.lambda_api = `https://${this.fn[0]}.${this.arn[2]}.${this.arn[3]}.amazonaws.com/${this.fn[this.fn.length-1]}?t=${this.t}`;
+        }
+        getData() {
+            console.log(this.lambda_api);
+            fetch(this.lambda_api, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(fluctuations => {
+                this.fluctuations = fluctuations;
+                console.log('Success:', fluctuations);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+            return this.fluctuations;
+        }
+    }
+</script>
 </head>
 <body>
 <div class="uk-container uk-margin-top">
