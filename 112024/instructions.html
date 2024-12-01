@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/js/uikit-icons.min.js"></script>
     <title>How Do Markets React Under Pressure: A Behavioral Study: Instructions</title>
 <script>
-    class dataSetupLocal{
+    class tradingData{
         constructor(t = 0){
             this.t = t;
             this.arn = "arn:aws:execute-api:ap-southeast-2:412381775962:0igi5rqzti/*/*/group1".split(":");
@@ -37,6 +37,8 @@
             return this.fluctuations;
         }
     }
+    const tradingData = new tradingData();
+    tradingData.getData();
 </script>
 </head>
 <body>
