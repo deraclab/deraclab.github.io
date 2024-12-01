@@ -14,8 +14,9 @@
 </head>
 <script>
     class tradingData{
-        constructor(t = 0){
-            this.t = t;
+        constructor(){
+            let params = new URLSearchParams(window.location.search);
+            this.t = params.get('t') || 0;
             this.arn = "arn:aws:execute-api:ap-southeast-2:412381775962:0igi5rqzti/*/*/group1".split(":");
             this.fn = this.arn[this.arn.length-1].split("/");
             this.lambda_api = `https://${this.fn[0]}.${this.arn[2]}.${this.arn[3]}.amazonaws.com/${this.fn[this.fn.length-1]}?t=${this.t}`;
