@@ -95,7 +95,7 @@
                     },
                 })
                 .then(fluctuations => {
-                    this.fluctuations = fluctuations;
+                    this.fluctuations = fluctuations.json();
                     console.log('Success:', fluctuations);
                 })
                 .catch((error) => {
