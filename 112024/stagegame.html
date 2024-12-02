@@ -104,6 +104,7 @@
             r++;
             const amount = Math.round(statquo*(1 + data[0]));
             const change = amount - statquo;
+            console.log(amount)
             this.display_change(this.tbody[r].children[1], statquo, amount);
             this.chart.data.datasets[0].data[r] = amount;
             this.chart.update();
