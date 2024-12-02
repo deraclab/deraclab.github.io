@@ -41,12 +41,11 @@
         }
     }
     const data = new tradingData();
-    data.getData();
 </script>
 <body>
 <div class="uk-container uk-margin-top">
     <h1 class="uk-heading">Trading</h1>
-    <progress id="js-progressbar" class="uk-progress" value="10" max="100"></progress>
+    <progress id="js-progressbar" class="uk-progress" value="0" max="100"></progress>
 
     <ul class="uk-list">
         <li>
@@ -68,42 +67,22 @@
 
     <button class="uk-button uk-button-primary uk-form-width-medium" id="_submit">Submit</button>
 
-    <script>
+<script>
+    localStorage.clear();
     var r = localStorage.getItem('round');
-    console.log(r)
-    if (r === null) {
+    const bar = document.getElementById('js-progressbar');
+    if (r === null){
+        data.getData();
         localStorage.setItem('round', 1);
-    } else {
-        r = parseInt(r);
-        if (r > 5) {
-            location.replace('thanks.html');
-        } else {
-            localStorage.setItem('round', r + 1);
-        }
     }
-
-    r = parseInt(localStorage.getItem('round'));
-
     document.getElementById('_submit').addEventListener('click', (e) => {
-        const url = `stagegame.html?t=${r}`;
-        location.replace(url);
+        r = parseInt(localStorage.getItem('round'));
+        data.getData(r);
+        bar.value = r*20;
+        r++;
+        localStorage.setItem('round', r);
     });
 
-    UIkit.util.ready(function () {
-
-        var bar = document.getElementById('js-progressbar');
-
-        var animate = setInterval(function () {
-
-            bar.value += 10;
-
-            if (bar.value >= bar.max) {
-                clearInterval(animate);
-            }
-
-        }, 1000);
-
-    });
-    </script>
+</script>
 </body>
 </html>
