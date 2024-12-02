@@ -9,20 +9,125 @@
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.21.16/dist/js/uikit-icons.min.js"></script>
     <!-- Chart.JS -->
-    <script src="https://www.jsdelivr.com/package/npm/chart.js?path=dist"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>How Do Markets React Under Pressure: A Behavioral Study: Instructions</title>
 </head>
 <script>
     class tradingData{
         constructor(){
+            localStorage.removeItem('round');
             let params = new URLSearchParams(window.location.search);
+            this.currency_code = localStorage.getItem('currency_code');
+            this.formatter = new Intl.NumberFormat('en-US');
+            this.tbody = document.getElementById('_tbody').children;
+            this.bar = document.getElementById('js-progressbar');
+            this.period = document.getElementById('_period');
+            this.control = document.getElementById('_control');
             this.arn = "arn:aws:execute-api:ap-southeast-2:412381775962:0igi5rqzti/*/*/group1".split(":");
             this.fn = this.arn[this.arn.length-1].split("/");
             this.lambda_api = `https://${this.fn[0]}.${this.arn[2]}.${this.arn[3]}.amazonaws.com/${this.fn[this.fn.length-1]}`;
+            this.demo = [
+                [-0.08571154042991133, -0.17503169521709108],
+                [0.10573961653114217],
+                [-0.06094570290030568],
+                [0.04075665533580855],
+                [-0.003732320393865179],
+                [-0.0977231727439887],
+            ];
+            this.fluctuations = document.getElementById('_fluctuations').getContext('2d');
+            this.chart = new Chart(this.fluctuations, {
+                type: 'line',
+                data: {
+                    labels: ['status quo', 'shock', '1', '2', '3', '4', '5', '6', ''],
+                    datasets: [{
+                        label: 'Stock Price',
+                        data: [],
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+            this.getData(0);
         }
-        getData(t = 0) {
-            console.log(this.lambda_api);
-            fetch(`${this.lambda_api}?t=${t}`, {
+        display_change(e, statquo, amount){
+            const change = amount - statquo;
+            const style = change > 0 ? 'uk-text-success' : change < 0 ? 'uk-text-danger' : 'uk-text-muted';
+            const control_style = change > 0 ? 'uk-alert-success' : change < 0 ? 'uk-alert-danger' : 'uk-alert-muted';
+            e.innerHTML = this.formatter.format(amount);
+            e.nextElementSibling.innerHTML = `${this.formatter.format(change)} (${Math.round(10000*change/statquo)/100}%)`;
+            e.nextElementSibling.classList.add(style);
+            //e.nextElementSibling.nextElementSibling.innerHTML = `${Math.round(10000*change/statquo)/100}%`;
+            //e.nextElementSibling.nextElementSibling.classList.add(style);
+            this.control.innerHTML = null;
+            while (this.control.classList.length > 0) {
+                this.control.classList.remove(this.control.classList.item(0));
+            }
+            this.control.classList.add(control_style, 'uk-alert');
+            const price = document.createElement('div');
+            price.classList.add('uk-text-bold', 'uk-h1', 'uk-margin-remove', style);
+            price.innerHTML = `${this.formatter.format(amount)} ${this.currency_code}`;
+            const info = document.createElement('div');
+            info.classList.add('uk-h5', 'uk-margin-remove', style);
+            info.innerHTML = `<b>${this.formatter.format(change)} ${this.currency_code}</b> (${Math.round(10000*change/statquo)/100}%)`;
+            this.control.appendChild(price);
+            this.control.appendChild(info);
+        }
+        init(data, r = 0){
+            this.period.innerHTML = r;
+            this.bar.value = r;
+            localStorage.setItem('round', r + 1);
+            document.querySelectorAll('._currency').forEach(e => e.innerHTML = this.currency_code);
+            const before = this.tbody[0].children[1];
+            const forecast = this.tbody[this.tbody.length - 1].children[1];
+            const statquo = localStorage.getItem('statquo');
+            const initial = Math.round(statquo*(1 + data[0]));
+            const amount = Math.round(statquo*(1 + data[1]));
+            localStorage.setItem(`price_${r}`, amount);
+            before.innerHTML = this.formatter.format(statquo);
+            this.display_change(forecast, statquo, initial);
+            this.display_change(this.tbody[1].children[1], statquo, amount);
+            this.chart.data.datasets[0].data = [statquo, initial, null, null, null, null, null, amount, amount];
+            this.chart.update();
+        }
+        update(data, r){
+            const statquo = localStorage.getItem(`price_${r}`);
+            this.bar.value = r*20;
+            this.period.innerHTML = r;
+            r++;
+            const amount = Math.round(statquo*(1 + data[0]));
+            const change = amount - statquo;
+            this.display_change(this.tbody[r].children[1], statquo, amount);
+            this.chart.data.datasets[0].data[r] = amount;
+            this.chart.update();
+            localStorage.setItem(`price_${r}`, amount);
+            localStorage.setItem('round', r);
+        }
+        thanks(){
+            const response = document.getElementById('_response');
+            response.innerHTML = '<button class="uk-button uk-button-primary uk-width-1-1">Back to Prolific</button>';
+            this.control.innerHTML = null;
+            while (this.control.classList.length > 0) {
+                this.control.classList.remove(this.control.classList.item(0));
+            }
+            this.control.classList.add('uk-alert', 'uk-alert-primary');
+            this.control.innerHTML = '<h2>Thank you for participating in this experiment.</h2>';
+            this.control.innerHTML += '<p>Your data has been recorded and you may now close this window.</p>';
+            return 0;
+        }
+        async getData() {
+            const r = localStorage.getItem('round') || 0;
+            if(r > 5) return this.thanks();
+            await fetch(`${this.lambda_api}?t=${r}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -31,58 +136,75 @@
             })
             .then(response => response.json())
             .then(fluctuations => {
-                this.fluctuations = fluctuations;
-                console.log('Success:', fluctuations);
+                if(r == 0) this.init(fluctuations);
+                else this.update(fluctuations, r);
+                return fluctuations;
             })
             .catch((error) => {
-                console.error('Error:', error);
+                if(r == 0) this.init(this.demo[r]);
+                else this.update(this.demo[r], r);
+                console.warn('Error:', error);
+                return this.demo[r];
             });
-            return this.fluctuations;
         }
     }
-    const data = new tradingData();
 </script>
 <body>
-<div class="uk-container uk-margin-top">
-    <h1 class="uk-heading">Trading</h1>
-    <progress id="js-progressbar" class="uk-progress" value="0" max="100"></progress>
-
-    <ul class="uk-list">
-        <li>
-            <label>
-                <input class="uk-radio" type="radio" name="decision" value="UP"> UP (buy)
-            </label>
-        </li>
-        <li>
-            <label>
-                <input class="uk-radio" type="radio" name="decision" value="DOWN"> DOWN (sell)
-            </label>
-        </li>
-        <li>
-            <label>
-                <input class="uk-radio" type="radio" name="decision" value="STAY"> STAY (hold)
-            </label>
-        </li>
-    </ul>
-
-    <button class="uk-button uk-button-primary uk-form-width-medium" id="_submit">Submit</button>
-
+<div class="uk-container uk-margin">
+    <div class="uk-card uk-card-default uk-card-body uk-margin-top">
+        <div>
+            <div class="uk-h2 uk-text-bold uk-float-left">Period <span id="_period">0</span> / 5</div>
+            <button class="uk-icon-button uk-float-right" uk-icon="lifesaver"></button>
+        </div>
+        <progress id="js-progressbar" class="uk-progress" value="0" max="100"></progress>
+        <div>
+            <div id="_control" uk-alert></div>
+        </div>
+        <div id="_response">
+            <button class="uk-button uk-button-primary uk-width-1-3">Up</button><!--
+            --><button class="uk-button uk-button-danger uk-width-1-3">Down</button><!--
+            --><button class="uk-button uk-button-secondary uk-width-1-3">Stay</button>
+        </div>
+        <div class="uk-child-width-1-2@m uk-margin" uk-grid>
+            <div>
+                <canvas id="_fluctuations" style="min-height: 300px;"></canvas>
+            </div>
+            <div>
+                <div uk-alert>
+                    <table class="uk-table uk-table-divider uk-text-small">
+                        <thead>
+                            <tr>
+                                <th><i>t</i></th>
+                                <th>Price (<span class="_currency"></span>)</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="_tbody">
+                            <tr><th>Status Quo</th><td></td><td>&mdash;</td></tr>
+                            <tr><th>0</th><td></td><td></td></tr>
+                            <tr><th>1</th><td></td><td></td></tr>
+                            <tr><th>2</th><td></td><td></td></tr>
+                            <tr><th>3</th><td></td><td></td></tr>
+                            <tr><th>4</th><td></td><td></td></tr>
+                            <tr><th>5</th><td></td><td></td></tr>
+                            <tr><th>Projected<sup>*</sup></th><td></td><td></td></tr>
+                        </tbody>
+                        <tfoot>
+                            <tr><td colspan="4">* Changes are relative to the <i>status quo</i>.</td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
-    localStorage.clear();
-    var r = localStorage.getItem('round');
-    const bar = document.getElementById('js-progressbar');
-    if (r === null){
-        data.getData();
-        localStorage.setItem('round', 1);
-    }
-    document.getElementById('_submit').addEventListener('click', (e) => {
-        r = parseInt(localStorage.getItem('round'));
-        data.getData(r);
-        bar.value = r*20;
-        r++;
-        localStorage.setItem('round', r);
+    const data = new tradingData();
+    document.getElementById('_response').querySelectorAll('button').forEach(e => {
+        e.addEventListener('click', (e) => {
+            data.getData();
+        });
     });
-
 </script>
 </body>
 </html>
