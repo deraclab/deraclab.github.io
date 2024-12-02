@@ -66,8 +66,6 @@
             e.innerHTML = this.formatter.format(amount);
             e.nextElementSibling.innerHTML = `${this.formatter.format(change)} (${Math.round(10000*change/statquo)/100}%)`;
             e.nextElementSibling.classList.add(style);
-            //e.nextElementSibling.nextElementSibling.innerHTML = `${Math.round(10000*change/statquo)/100}%`;
-            //e.nextElementSibling.nextElementSibling.classList.add(style);
             this.control.innerHTML = null;
             while (this.control.classList.length > 0) {
                 this.control.classList.remove(this.control.classList.item(0));
@@ -136,6 +134,7 @@
             })
             .then(response => response.json())
             .then(fluctuations => {
+                console.log(fluctuations);
                 if(r == 0) this.init(fluctuations);
                 else this.update(fluctuations, r);
                 return fluctuations;
