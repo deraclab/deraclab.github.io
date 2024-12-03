@@ -138,7 +138,7 @@
             const currency_code = element.options[element.selectedIndex].dataset.currency_code;
             const base = dataSetup.normalize(element.value)*endowment;
             const len = parseInt(base).toString().length;
-            const denom = Math.pow(10,len-1);
+            const denom = Math.pow(10, len + 1);
             const amount = Math.round(base/denom)*denom;
             const formatter = new Intl.NumberFormat('en-US');
             const _uestionElement = document.getElementById('_question');

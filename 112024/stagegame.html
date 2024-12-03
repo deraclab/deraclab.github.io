@@ -189,7 +189,6 @@
             })
             .then(response => response.json())
             .then(fluctuations => {
-                console.log(fluctuations[0]);
                 localStorage.setItem('shares', fluctuations[2]);
                 if(r == 0) this.init(fluctuations);
                 else this.update(fluctuations, r);
