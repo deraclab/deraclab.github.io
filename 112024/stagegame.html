@@ -116,7 +116,7 @@
             const statquo = localStorage.getItem('statquo');
             const initial = Math.round(statquo*(1 + data[0]));
             const amount = Math.round(statquo*(1 + data[1]));
-            localStorage.setItem(`price_${r}`, amount);
+            localStorage.setItem(`price_${r + 1}`, amount);
             before.innerHTML = this.formatter.format(statquo);
             this.display_change(forecast, statquo, initial);
             this.display_change(this.tbody[1].children[1], statquo, amount);
@@ -126,6 +126,7 @@
         }
         update(data, r){
             const statquo = localStorage.getItem(`price_${r}`);
+            console.log(statquo);
             this.bar.value = r*20;
             this.period.innerHTML = r;
             r++;
@@ -139,6 +140,11 @@
             localStorage.setItem('round', r);
         }
         thanks(){
+            const data = {};
+            for(let i = 0; i < 6; i++){
+                data[`price_${i}`] = localStorage.getItem(`price_${i}`);
+                data[`response_${i}`] = localStorage.getItem(`response_${i}`);
+            }
             const response = document.getElementById('_response');
             response.innerHTML = '<button class="uk-button uk-button-primary uk-width-1-1">Back to Prolific</button>';
             this.control.innerHTML = null;
