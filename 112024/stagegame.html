@@ -15,10 +15,13 @@
 <script>
     class tradingData{
         constructor(){
+            localStorage.setItem('started_at', new Date().getTime());
             localStorage.removeItem('round');
-            let params = new URLSearchParams(window.location.search);
             this.currency_code = localStorage.getItem('currency_code');
             this.formatter = new Intl.NumberFormat('en-US');
+            this.share = 1000;
+            this.asset = document.getElementById('_asset').children;
+            this.asset[0].querySelector('._share').innerHTML = this.formatter.format(this.share);
             this.tbody = document.getElementById('_tbody').children;
             this.bar = document.getElementById('js-progressbar');
             this.period = document.getElementById('_period');
@@ -99,12 +102,13 @@
             this.control.classList.add(control_style, 'uk-alert');
             const price = document.createElement('div');
             price.classList.add('uk-text-bold', 'uk-h1', 'uk-margin-remove', style);
-            price.innerHTML = `${this.formatter.format(amount)} ${this.currency_code}`;
+            price.innerHTML = `${this.formatter.format(amount*this.share)} ${this.currency_code}`;
             const info = document.createElement('div');
             info.classList.add('uk-h5', 'uk-margin-remove', style);
-            info.innerHTML = `<b>${this.formatter.format(change)} ${this.currency_code}</b> (${Math.round(10000*change/statquo)/100}%)`;
+            info.innerHTML = `<b>${this.formatter.format(change*this.share)} ${this.currency_code}</b> (${Math.round(10000*change/statquo)/100}%)`;
             this.control.appendChild(price);
             this.control.appendChild(info);
+            this.asset[0].querySelector('._price').innerHTML = `${this.formatter.format(amount)}${this.currency_code}`;
         }
         init(data, r = 0){
             this.period.innerHTML = r;
@@ -113,9 +117,9 @@
             document.querySelectorAll('._currency').forEach(e => e.innerHTML = this.currency_code);
             const before = this.tbody[0].children[1];
             const forecast = this.tbody[this.tbody.length - 1].children[1];
-            const statquo = localStorage.getItem('statquo');
-            const initial = Math.round(statquo*(1 + data[0]));
-            const amount = Math.round(statquo*(1 + data[1]));
+            const statquo = Math.round(localStorage.getItem('statquo')) / this.share;
+            const initial = Math.round(statquo*(1 + data[0])*100) / 100;
+            const amount = Math.round(statquo*(1 + data[1])*100) / 100;
             localStorage.setItem(`price_${r + 1}`, amount);
             before.innerHTML = this.formatter.format(statquo);
             this.display_change(forecast, statquo, initial);
@@ -125,14 +129,13 @@
             this.chart.update();
         }
         update(data, r){
-            const statquo = localStorage.getItem(`price_${r}`);
-            console.log(statquo);
+            localStorage.setItem(`update_${r}`, new Date().getTime());
+            const statquo = Math.round(localStorage.getItem(`price_${r}`)*100) / 100;
             this.bar.value = r*20;
             this.period.innerHTML = r;
             r++;
-            const amount = Math.round(statquo*(1 + data[0]));
+            const amount = Math.round(statquo*(1 + data[0])*100) / 100;
             const change = amount - statquo;
-            console.log(amount)
             this.display_change(this.tbody[r].children[1], statquo, amount);
             this.chart.data.datasets[0].data[r] = amount;
             this.chart.update();
@@ -140,11 +143,25 @@
             localStorage.setItem('round', r);
         }
         thanks(){
-            const data = {};
-            for(let i = 0; i < 6; i++){
-                data[`price_${i}`] = localStorage.getItem(`price_${i}`);
-                data[`response_${i}`] = localStorage.getItem(`response_${i}`);
+            localStorage.setItem(`update_6`, new Date().getTime());
+            const responses = [];
+            for(let r = 1; r < 7; r++){
+                responses.push([
+                    parseFloat(localStorage.getItem(`price_${r}`)),
+                    parseInt(localStorage.getItem(`response_${r}`)),
+                    (parseInt(localStorage.getItem(`update_${r}`)) - parseInt(localStorage.getItem('started_at')))/10000,
+                ]);
             }
+            const data = {
+                country: localStorage.getItem('country_id'),
+                risk_pref: localStorage.getItem('risk_prefs'),
+                shares: this.share,
+                statquo: parseInt(localStorage.getItem('statquo')) / this.share,
+                started_at: parseInt(localStorage.getItem('started_at'))/10000,
+                responses: responses,
+            };
+            console.log(data);
+            this.asset[0].innerHTML = 'The survey is completed!';
             const response = document.getElementById('_response');
             response.innerHTML = '<button class="uk-button uk-button-primary uk-width-1-1">Back to Prolific</button>';
             this.control.innerHTML = null;
@@ -191,15 +208,17 @@
             <button class="uk-icon-button uk-float-right" uk-icon="lifesaver"></button>
         </div>
         <progress id="js-progressbar" class="uk-progress" value="0" max="100"></progress>
-        <div>
+        <div id="_asset">
+            <div class="uk-h4 uk-text-bold">Your Asset: <span class="_share"></span> Shares @<span class="_price"></span></div>
             <div id="_control" uk-alert></div>
         </div>
         <div id="_response">
-            <div class="uk-h5 uk-text-bold">Your Response</div>
+            <div class="uk-h4 uk-text-bold">Your Response</div>
             <button class="uk-button uk-button-default uk-button-small uk-width-1-3" value="1">Up</button><!--
             --><button class="uk-button uk-button-default uk-button-small uk-width-1-3" value="-1">Down</button><!--
             --><button class="uk-button uk-button-default uk-button-small uk-width-1-3" value="0">Stay</button>
         </div>
+        <div class="uk-h4 uk-text-bold">Market Information</div>
         <div class="uk-child-width-1-2@m uk-margin" uk-grid>
             <div>
                 <canvas id="_fluctuations" style="min-height: 300px;"></canvas>
