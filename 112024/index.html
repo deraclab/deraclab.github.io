@@ -132,21 +132,22 @@
         localStorage.clear();
         const dataSetup = new dataSetupLocal();
         dataSetup.datalist('_countries');
-        const selectCurrency = (element, endowment = 1) => {
+        const selectCurrency = (element, price = 1, endowment = 1000) => {
             const country = element.options[element.selectedIndex].text;
             const currency = element.options[element.selectedIndex].dataset.currency;
             const currency_code = element.options[element.selectedIndex].dataset.currency_code;
-            const base = dataSetup.normalize(element.value)*endowment;
+            const base = dataSetup.normalize(element.value)*price;
             const len = parseInt(base).toString().length;
-            const denom = Math.pow(10, len + 1);
-            const amount = Math.round(base/denom)*denom;
+            const denom = Math.pow(10, 2);
+            const statquo = Math.round(base*denom)/denom;
+            const amount = statquo*endowment;
             const formatter = new Intl.NumberFormat('en-US');
             const _uestionElement = document.getElementById('_question');
             const currencyUnit = dataSetup.pluralize(currency);
             _uestionElement.innerHTML = formatter.format(amount) + ` ${currencyUnit} (${currency_code})`;
             _uestionElement.parentElement.classList.remove('uk-hidden');
             document.getElementById('_lottery').innerHTML = formatter.format(amount*2) + ` ${currency_code}`;
-            localStorage.setItem('statquo', amount);
+            localStorage.setItem('statquo', statquo);
             localStorage.setItem('country_id', element.value);
             localStorage.setItem('country', country);
             localStorage.setItem('currency', currency);
