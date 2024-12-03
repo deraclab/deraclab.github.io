@@ -19,9 +19,7 @@
             localStorage.removeItem('round');
             this.currency_code = localStorage.getItem('currency_code');
             this.formatter = new Intl.NumberFormat('en-US');
-            this.share = 1000;
             this.asset = document.getElementById('_asset').children;
-            this.asset[0].querySelector('._share').innerHTML = this.formatter.format(this.share);
             this.tbody = document.getElementById('_tbody').children;
             this.bar = document.getElementById('js-progressbar');
             this.period = document.getElementById('_period');
@@ -30,7 +28,7 @@
             this.fn = this.arn[this.arn.length-1].split("/");
             this.lambda_api = `https://${this.fn[0]}.${this.arn[2]}.${this.arn[3]}.amazonaws.com/${this.fn[this.fn.length-1]}`;
             this.demo = [
-                [-0.08571154042991133, -0.17503169521709108],
+                [-0.08571154042991133, -0.17503169521709108, 1000],
                 [0.10573961653114217],
                 [-0.06094570290030568],
                 [0.04075665533580855],
@@ -89,6 +87,7 @@
             this.getData(0);
         }
         display_change(e, statquo, amount){
+            const shares = parseInt(localStorage.getItem('shares'));
             const change = amount - statquo;
             const style = change > 0 ? 'uk-text-success' : change < 0 ? 'uk-text-danger' : 'uk-text-muted';
             const control_style = change > 0 ? 'uk-alert-success' : change < 0 ? 'uk-alert-danger' : 'uk-alert-muted';
@@ -102,10 +101,10 @@
             this.control.classList.add(control_style, 'uk-alert');
             const price = document.createElement('div');
             price.classList.add('uk-text-bold', 'uk-h1', 'uk-margin-remove', style);
-            price.innerHTML = `${this.formatter.format(amount*this.share)} ${this.currency_code}`;
+            price.innerHTML = `${this.formatter.format(amount*shares)} ${this.currency_code}`;
             const info = document.createElement('div');
             info.classList.add('uk-h5', 'uk-margin-remove', style);
-            info.innerHTML = `<b>${this.formatter.format(change*this.share)} ${this.currency_code}</b> (${Math.round(10000*change/statquo)/100}%)`;
+            info.innerHTML = `<b>${this.formatter.format(change*shares)} ${this.currency_code}</b> (${Math.round(10000*change/statquo)/100}%)`;
             this.control.appendChild(price);
             this.control.appendChild(info);
             this.asset[0].querySelector('._price').innerHTML = `${this.formatter.format(amount)}${this.currency_code}`;
@@ -115,9 +114,11 @@
             this.bar.value = r;
             localStorage.setItem('round', r + 1);
             document.querySelectorAll('._currency').forEach(e => e.innerHTML = this.currency_code);
+            const shares = parseInt(localStorage.getItem('shares'));
+            this.asset[0].querySelector('._share').innerHTML = this.formatter.format(shares);
             const before = this.tbody[0].children[1];
             const forecast = this.tbody[this.tbody.length - 1].children[1];
-            const statquo = Math.round(localStorage.getItem('statquo')) / this.share;
+            const statquo = Math.round(localStorage.getItem('statquo')) / shares;
             const initial = Math.round(statquo*(1 + data[0])*100) / 100;
             const amount = Math.round(statquo*(1 + data[1])*100) / 100;
             localStorage.setItem(`price_${r + 1}`, amount);
@@ -144,6 +145,7 @@
         }
         thanks(){
             localStorage.setItem(`update_6`, new Date().getTime());
+            const shares = parseInt(localStorage.getItem('shares'))
             const responses = [];
             for(let r = 1; r < 7; r++){
                 responses.push([
@@ -155,8 +157,8 @@
             const data = {
                 country: localStorage.getItem('country_id'),
                 risk_pref: localStorage.getItem('risk_prefs'),
-                shares: this.share,
-                statquo: parseInt(localStorage.getItem('statquo')) / this.share,
+                shares: shares,
+                statquo: parseInt(localStorage.getItem('statquo')) / shares,
                 started_at: parseInt(localStorage.getItem('started_at'))/10000,
                 responses: responses,
             };
@@ -187,12 +189,16 @@
             .then(response => response.json())
             .then(fluctuations => {
                 console.log(fluctuations);
+                localStorage.setItem('shares', fluctuations[2]);
                 if(r == 0) this.init(fluctuations);
                 else this.update(fluctuations, r);
                 return fluctuations;
             })
             .catch((error) => {
-                if(r == 0) this.init(this.demo[r]);
+                if(r == 0){
+                    localStorage.setItem('shares', this.demo[r][2]);
+                    this.init(this.demo[r]);
+                }
                 else this.update(this.demo[r], r);
                 console.warn('Error:', error);
                 return this.demo[r];
