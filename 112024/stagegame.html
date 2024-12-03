@@ -118,7 +118,7 @@
             this.asset[0].querySelector('._share').innerHTML = this.formatter.format(shares);
             const before = this.tbody[0].children[1];
             const forecast = this.tbody[this.tbody.length - 1].children[1];
-            const statquo = Math.round(localStorage.getItem('statquo')) / shares;
+            const statquo = Math.round(localStorage.getItem('statquo'));
             const initial = Math.round(statquo*(1 + data[0])*100) / 100;
             const amount = Math.round(statquo*(1 + data[1])*100) / 100;
             localStorage.setItem(`price_${r + 1}`, amount);
@@ -156,9 +156,10 @@
             }
             const data = {
                 country: localStorage.getItem('country_id'),
+                experiences: localStorage.getItem('experiences'),
                 risk_pref: localStorage.getItem('risk_prefs'),
                 shares: shares,
-                statquo: parseInt(localStorage.getItem('statquo')) / shares,
+                statquo: parseInt(localStorage.getItem('statquo')),
                 started_at: parseInt(localStorage.getItem('started_at'))/10000,
                 responses: responses,
             };

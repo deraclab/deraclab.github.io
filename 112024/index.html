@@ -132,7 +132,7 @@
         localStorage.clear();
         const dataSetup = new dataSetupLocal();
         dataSetup.datalist('_countries');
-        const selectCurrency = (element, endowment = 10000) => {
+        const selectCurrency = (element, endowment = 1) => {
             const country = element.options[element.selectedIndex].text;
             const currency = element.options[element.selectedIndex].dataset.currency;
             const currency_code = element.options[element.selectedIndex].dataset.currency_code;
