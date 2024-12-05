@@ -24,6 +24,7 @@
             this.bar = document.getElementById('js-progressbar');
             this.period = document.getElementById('_period');
             this.control = document.getElementById('_control');
+            this.overlay = document.getElementById('_overlay');
             this.arn = "arn:aws:execute-api:ap-southeast-2:412381775962:0igi5rqzti/*/*/group1".split(":");
             this.fn = this.arn[this.arn.length-1].split("/");
             this.lambda_api = `https://${this.fn[0]}.${this.arn[2]}.${this.arn[3]}.amazonaws.com/${this.fn[this.fn.length-1]}`;
@@ -71,6 +72,9 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
+                        legend: {
+                            display: false,
+                        },
                         horizontalLine: {
                             color: 'gray', // Line color
                             lineWidth: 1,  // Line thickness
@@ -128,6 +132,7 @@
             this.chart.data.datasets[0].data = [statquo, initial, null, null, null, null, null, amount];
             this.chart.options.plugins.horizontalLine.yValue = amount;
             this.chart.update();
+            this.overlay.style.display = 'none';
         }
         update(data, r){
             localStorage.setItem(`update_${r}`, new Date().getTime());
@@ -174,9 +179,11 @@
             this.control.classList.add('uk-alert', 'uk-alert-primary');
             this.control.innerHTML = '<h2>Thank you for participating in this experiment.</h2>';
             this.control.innerHTML += '<p>Your data has been recorded and you may now close this window.</p>';
+            this.overlay.style.display = 'none';
             return 0;
         }
         async getData(action = null) {
+            this.overlay.style.display = 'block';
             const r = localStorage.getItem('round') || 0;
             if(r > 5) return this.thanks();
             else if(r > 0) localStorage.setItem(`response_${r}`, action);
@@ -192,6 +199,7 @@
                 localStorage.setItem('shares', fluctuations[2]);
                 if(r == 0) this.init(fluctuations);
                 else this.update(fluctuations, r);
+                this.overlay.style.display = 'none';
                 return fluctuations;
             })
             .catch((error) => {
@@ -201,6 +209,7 @@
                 }
                 else this.update(this.demo[r], r);
                 console.warn('Error:', error);
+                this.overlay.style.display = 'none';
                 return this.demo[r];
             });
         }
@@ -220,9 +229,8 @@
         </div>
         <div id="_response">
             <div class="uk-h4 uk-text-bold">Your Response</div>
-            <button class="uk-button uk-button-default uk-button-small uk-width-1-3" value="1">Up</button><!--
-            --><button class="uk-button uk-button-default uk-button-small uk-width-1-3" value="-1">Down</button><!--
-            --><button class="uk-button uk-button-default uk-button-small uk-width-1-3" value="0">Stay</button>
+            <button class="uk-button uk-button-default uk-button-small uk-width-1-2" value="1">Up</button><!--
+            --><button class="uk-button uk-button-default uk-button-small uk-width-1-2" value="-1">Down</button>
         </div>
         <div class="uk-h4 uk-text-bold">Market Information</div>
         <div class="uk-child-width-1-2@m uk-margin" uk-grid>
@@ -257,12 +265,20 @@
             </div>
         </div>
     </div>
+    <div class="uk-overlay-default uk-position-cover" id="_overlay">
+        <div class="uk-position-center">
+            <div uk-spinner="ratio: 3"></div>
+            <div class="uk-text-muted">Loading...</div>
+        </div>
+    </div>
 </div>
 <script>
-    const data = new tradingData();
-    document.getElementById('_response').querySelectorAll('button').forEach(e => {
-        e.addEventListener('click', (e) => {
-            data.getData(e.target.value);
+    window.addEventListener('load', (e) => {
+        const data = new tradingData();
+        document.getElementById('_response').querySelectorAll('button').forEach(e => {
+            e.addEventListener('click', (e) => {
+                data.getData(e.target.value);
+            });
         });
     });
 </script>
